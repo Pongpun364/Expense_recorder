@@ -17,11 +17,8 @@ filemenu = Menu(menubar,tearoff=0)
 menubar.add_cascade(label='File',menu=filemenu)
 filemenu.add_command(label='Import CSV')
 
-# 	Help menu 
 
-Helpmenu = Menu(menubar,tearoff=0)
-menubar.add_cascade(label='Help',menu=Helpmenu)
-Helpmenu.add_command(label='Face Book')
+
 
 # 	Donate menu 
 
@@ -31,6 +28,15 @@ def About():
 Donatemenu = Menu(menubar,tearoff=0)
 menubar.add_cascade(label='Donate',menu=Donatemenu)
 Donatemenu.add_command(label='Just 1 Bitcoin',command=About)
+
+
+# 	Help menu 
+
+Helpmenu = Menu(menubar,tearoff=0)
+menubar.add_cascade(label='Help',menu=Helpmenu)
+Helpmenu.add_command(label='Face Book')
+
+
 
 
 

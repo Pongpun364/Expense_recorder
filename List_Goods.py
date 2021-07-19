@@ -4,7 +4,7 @@ from tkinter import ttk,messagebox
 import csv
 from datetime import datetime
 GUX = Tk()
-GUX.title('โปรเเกรมพัฒนาโดยกุเอง')
+GUX.title('โปรเเกรมพัฒนาโดยกุเอง V.1.0')
 GUX.geometry('600x600+1035+50')
 
 
@@ -18,11 +18,10 @@ menubar.add_cascade(label='File',menu=filemenu)
 filemenu.add_command(label='Import CSV')
 
 
-
-
 # 	Donate menu 
 
 def About():
+	print('About Menu')
 	messagebox.showinfo('About','บริจาคมาดิไอเหี้ย !!!!')
 
 Donatemenu = Menu(menubar,tearoff=0)
@@ -35,10 +34,6 @@ Donatemenu.add_command(label='Just 1 Bitcoin',command=About)
 Helpmenu = Menu(menubar,tearoff=0)
 menubar.add_cascade(label='Help',menu=Helpmenu)
 Helpmenu.add_command(label='Face Book')
-
-
-
-
 
 
 

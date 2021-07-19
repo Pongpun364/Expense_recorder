@@ -3,12 +3,13 @@ from tkinter import *
 from tkinter import ttk,messagebox
 import csv
 from datetime import datetime
+import uuid
 GUX = Tk()
 GUX.title('โปรเเกรมพัฒนาโดยกุเอง V.1.0')
 GUX.geometry('600x600+1035+50')
 
 
-######################################Menu Bar####################################
+###################################### Menu Bar ####################################
 menubar=Menu(GUX)
 GUX.config(menu=menubar)
 
@@ -89,9 +90,11 @@ def Save(event = None):
 		v_quantity.set('')
 		v_price.set('')
 		v_expense.set('')
-		today = datetime.now().strftime('%a') # ไว้เอาไปใช้เเบบนี้: days["Mon"] = 'จันทร์'
-		time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+		stamp = datetime.now()
+		today = stamp.strftime('%a') # ไว้เอาไปใช้เเบบนี้: days["Mon"] = 'จันทร์'
+		time_now = stamp.strftime('%Y-%m-%d %H:%M:%S')
 		time_now = days[today] + '-' + time_now
+		transactionID = stamp.strftime('%Y%m%d%H%M%f')
 		text = 'รายการ: {} ราคา: {} \nจำนวน: {} ทั้งหมด: {}'.format(expense,price,quantity,total)
 		v_result.set(text)
 		print('รายการ: {} ราคา: {} จำนวน: {} ทั้งหมด: {}'.format(expense,price,quantity,total))
@@ -99,8 +102,9 @@ def Save(event = None):
 		with open('ep6.csv','a',encoding = 'utf-8',newline = '') as f:
 
 			fw = csv.writer(f) 
-			data = [expense,price,quantity,str(total),time_now]
+			data = [transactionID,expense,price,quantity,total,time_now]
 			fw.writerow(data)
+			
 			
 		
 		E1.focus()
@@ -113,7 +117,8 @@ def Save(event = None):
 		v_price.set('')
 		v_expense.set('')
 
-# ���������ö�� enter ��
+#############################################
+
 GUX.bind('<Return>',Save) # ----------- def Save(event=None) ------
 
 FONT1 = (None,20)
@@ -124,18 +129,18 @@ mainicon.pack()
 
 
 L = ttk.Label(T1,text='รายการ',font = FONT1).pack()
-v_expense = StringVar()# �����þ��������Ѻ�红������ GUI
+v_expense = StringVar()
 E1 = ttk.Entry(T1,textvariable=v_expense,font = FONT1)
 E1.pack()
 #------------------------------------------------
 
 L = ttk.Label(T1,text='ราคา',font = FONT1).pack()
-v_price = StringVar()# �����þ��������Ѻ�红������ GUI
+v_price = StringVar()# 
 E2 = ttk.Entry(T1,textvariable=v_price,font = FONT1).pack()
 #------------------------------------------------
 
 L = ttk.Label(T1,text='จำนวน',font = FONT1).pack()
-v_quantity = StringVar()# �����þ��������Ѻ�红������ GUI
+v_quantity = StringVar()# 
 E3 = ttk.Entry(T1,textvariable=v_quantity,font = FONT1)
 E3.pack()
 #------------------------------------------------
@@ -166,7 +171,7 @@ def read_csv():
 
 L = ttk.Label(T2,text='ตารางเเสดงผลลัพธ์ทั้งหมด',font = FONT1).pack()
 
-header = ['รายการ','ราคา','จำนวน','รวม','วัน-เวลา']
+header = ['Transaction ID','รายการ','ราคา','จำนวน','รวม','วัน-เวลา']
 resulttable = ttk.Treeview(T2,columns=header,show='headings',height=20)
 resulttable.pack()
 
@@ -176,7 +181,7 @@ resulttable.pack()
 for h in header:
 	resulttable.heading(h,text=h)
 
-headerwidth = [150,80,80,90,170]
+headerwidth = [150,150,80,80,90,170]
 
 for h,w in zip(header,headerwidth):
 	resulttable.column(h,width=w)
@@ -187,22 +192,67 @@ for h,w in zip(header,headerwidth):
 
 
 
-def update_table():
-	resulttable.delete(*resulttable.get_children())
-	# for i in resulttable.get_children():
-	# 	resulttable.delete(i)
-	data = read_csv()
-	for d in data:
-		resulttable.insert('','end',values=d)
 
+def update_csv():
+	with open('ep6.csv','w',newline='',encoding='utf-8') as f: 
+		ABC = csv.writer(f)
+		# เตรียมข้อมูลให้กลายเป็น list
+		data = list(allTransaction.values())
+		ABC.writerows(data)  # multiple line from nested list [[],[],[]]
+		print('Table was update')
+	
+
+allTransaction = {}
+
+
+
+def delete_Record(event=None):
+	check = messagebox.askyesno('Confirm','จะลบข้อมูลใช่ไหม')
+	print('check',check)
+	print('delete')
+	select = resulttable.selection()
+	data = resulttable.item(select)
+	print('Pre_data: ',data)
+	data = data['values']
+	print(data)
+	transactionid = data[0]
+	# print('TransactionID: ',transactionid)
+	del allTransaction[str(transactionid)]
+	# print('Post Transaction: ',allTransaction)
+	update_csv()
+	update_table()
 	
 
 
 
 
 
+Delete_Button = ttk.Button(T2,text='delete',command=delete_Record)
+Delete_Button.place(x=50,y=500)
+
+resulttable.bind('<Delete>',delete_Record)
+
+def update_table():
+	resulttable.delete(*resulttable.get_children())
+	# for i in resulttable.get_children():
+	# 	resulttable.delete(i)
+	try:
+		data = read_csv()
+		for d in data:
+			# create allTransaction
+			allTransaction[d[0]] = d
+			resulttable.insert('','end',values=d)
+		# print('allTransaction: ',allTransaction)
+	except:
+		print('No File')
 
 
+update_table()
+
+
+	
+
+	
 
 
 

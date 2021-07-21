@@ -6,7 +6,15 @@ from datetime import datetime
 import uuid
 GUX = Tk()
 GUX.title('โปรเเกรมพัฒนาโดยกุเอง V.1.0')
-GUX.geometry('600x600+1035+50')
+
+ws = GUX.winfo_screenwidth()
+hs = GUX.winfo_screenheight()
+
+x = (ws/2)-(300)
+y = (hs/2)-(300)
+
+
+GUX.geometry(f'600x600+{x:.0f}+{y:.0f}')
 
 
 ###################################### Menu Bar ####################################
@@ -135,12 +143,12 @@ E1.pack()
 #------------------------------------------------
 
 L = ttk.Label(T1,text='ราคา',font = FONT1).pack()
-v_price = StringVar()# 
+v_price = StringVar()
 E2 = ttk.Entry(T1,textvariable=v_price,font = FONT1).pack()
 #------------------------------------------------
 
 L = ttk.Label(T1,text='จำนวน',font = FONT1).pack()
-v_quantity = StringVar()# 
+v_quantity = StringVar()
 E3 = ttk.Entry(T1,textvariable=v_quantity,font = FONT1)
 E3.pack()
 #------------------------------------------------
@@ -157,7 +165,7 @@ result.pack(pady=20)
 #############################################################
 
 def read_csv():
-
+	
 	with open('ep6.csv',newline='',encoding='utf-8') as f: 
 		fr = csv.reader(f)
 		data = list(fr)
@@ -180,6 +188,7 @@ resulttable.pack()
 
 for h in header:
 	resulttable.heading(h,text=h)
+
 
 headerwidth = [150,150,80,80,90,170]
 
@@ -206,11 +215,13 @@ allTransaction = {}
 
 
 
-def delete_Record(event=None):
-	check = messagebox.askyesno('Confirm','จะลบข้อมูลใช่ไหม')
-	print('check',check)
-	print('delete')
+def delete_Record(event = None):
 	select = resulttable.selection()
+	if (select == ()):
+		return
+	check = messagebox.askyesno('Confirm','จะลบข้อมูลใช่ไหม')
+	print('delete')
+	print('Select: ',select)
 	data = resulttable.item(select)
 	print('Pre_data: ',data)
 	data = data['values']
@@ -243,14 +254,93 @@ def update_table():
 			allTransaction[d[0]] = d
 			resulttable.insert('','end',values=d)
 		# print('allTransaction: ',allTransaction)
-	except:
-		print('No File')
-
+	except Exception as e:
+		print('No File',e)
 
 update_table()
 
 
+# Right Click Menu
+
+def EditRecord():
+	POPUP = Toplevel() # คล้ายๆกับ Tk()
+	POPUP.title('Edit Record')
+	ws = POPUP.winfo_screenwidth()
+	hs = POPUP.winfo_screenheight()
+
+	x = (ws/2)-(250)
+	y = (hs/2)-(200)
+
+
+	POPUP.geometry(f'500x400+{x:.0f}+{y:.0f}')
 	
+	L = ttk.Label(POPUP,text='รายการ',font = FONT1).pack()
+	v_expense = StringVar()
+	E1 = ttk.Entry(POPUP,textvariable=v_expense,font = FONT1)
+	E1.pack()
+	#------------------------------------------------
+
+	L = ttk.Label(POPUP,text='ราคา',font = FONT1).pack()
+	v_price = StringVar()# 
+	E2 = ttk.Entry(POPUP,textvariable=v_price,font = FONT1).pack()
+	#------------------------------------------------
+
+	L = ttk.Label(POPUP,text='จำนวน',font = FONT1).pack()
+	v_quantity = StringVar()# 
+	E3 = ttk.Entry(POPUP,textvariable=v_quantity,font = FONT1)
+	E3.pack()
+	#------------------------------------------------
+
+	def Edit():
+		Old_Data = allTransaction[str(transactionid)]
+		v1 = v_expense.get()
+		v2 = float(v_price.get())
+		v3 = float(v_quantity.get())
+		total = v2*v3
+		new_data = [Old_Data[0],v1,v2,v3,total,Old_Data[5]]
+		allTransaction[str(transactionid)] = new_data
+		update_csv()
+		update_table()
+		POPUP.destroy()
+
+
+
+	B2 = ttk.Button(POPUP,text = 'save',command = Edit,image=icon_t3,compound = 'left')
+	B2.pack()
+
+	# get data in selected record
+	select = resulttable.selection()
+	data = resulttable.item(select)
+	print('Pre_data: ',data)
+	data = data['values']
+	print(data)
+	transactionid = data[0]
+    # สั่งเซตค่าเก่าไว้ตรงช่องกรอก
+	v_expense.set(data[1])
+	v_price.set(data[2])
+	v_quantity.set(data[3])
+
+
+
+
+	POPUP.mainloop()
+
+
+
+
+rightclick = Menu(GUX,tearoff=0)
+rightclick.add_command(label='Edit',command=EditRecord)
+rightclick.add_command(label='Delete',command=delete_Record)
+
+def menupopup(event):
+	select = resulttable.selection()
+	if (select == ()):
+		return
+	print(event.x_root, event.y_root)
+	rightclick.post(event.x_root,event.y_root)
+
+resulttable.bind('<Button-3>',menupopup)
+
 
 	
 

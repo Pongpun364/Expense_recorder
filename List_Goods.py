@@ -4,6 +4,57 @@ from tkinter import ttk,messagebox
 import csv
 from datetime import datetime
 import uuid
+
+
+###############################DATA BASE##############################
+
+import sqlite3
+
+# สร้าง database
+conn = sqlite3.connect('expense.sqlite3')
+# สร้างตัวดำเนินการ
+c = conn.cursor()
+
+# สร้าง table ด้วยภาษา sql
+# ['Transaction ID'(transactionID)--TEXT
+# ,'รายการ'(title)--TEXT
+# ,'ราคา'(price)--REAL
+# ,'จำนวน'(quantity)--INTEGER
+# ,'รวม'(total)--REAL
+# ,'วัน-เวลา'(datetime)--TEXT
+# ]
+c.execute("""CREATE TABLE IF NOT EXISTS mypongp (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            transactionID TEXT,
+            title TEXT,
+            price REAL,
+            quantity INTEGER,
+            total REAL,
+            datetime TEXT
+
+             ) """)
+
+
+def insert_mypongp(transactionID,title,price,quantity,total,datetime):
+    ID = None
+    with conn:
+        c.execute("""INSERT INTO mypongp VALUES (?,?,?,?,?,?,?) """,
+            (ID,transactionID,title,price,quantity,total,datetime))
+    
+    sqlite3.connect('expense.sqlite3').commit() # ก็คือ save ไฟล์นั่นเเหละ เเม่ย้อย !!!
+    print('Insert success !!!')
+
+
+
+
+
+
+##############################DATA BASE###############################
+
+################################# PROGRAM ####################
+
+
+
 GUX = Tk()
 GUX.title('โปรเเกรมพัฒนาโดยกุเอง V.1.0')
 
@@ -106,6 +157,10 @@ def Save(event = None):
 		text = 'รายการ: {} ราคา: {} \nจำนวน: {} ทั้งหมด: {}'.format(expense,price,quantity,total)
 		v_result.set(text)
 		print('รายการ: {} ราคา: {} จำนวน: {} ทั้งหมด: {}'.format(expense,price,quantity,total))
+
+		#---------------- Sqlite --------------
+		insert_mypongp(transactionID,expense,float(price),int(quantity),total,time_now)
+		
 		#----------- csv -----------------------------
 		with open('ep6.csv','a',encoding = 'utf-8',newline = '') as f:
 
@@ -152,7 +207,7 @@ v_quantity = StringVar()
 E3 = ttk.Entry(T1,textvariable=v_quantity,font = FONT1)
 E3.pack()
 #------------------------------------------------
-
+############# save ##################
 
 B2 = ttk.Button(T1,text = 'save',command = Save,image=icon_t3,compound = 'left')
 B2.pack()
